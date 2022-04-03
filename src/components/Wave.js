@@ -40,20 +40,6 @@ function Wave() {
       }));
 
       setAllWaves(cleanedWaves);
-
-      // //!! ----------------for events--------------
-      wavePortalContract.on("NewWave", (from, timestamp, message) => {
-        console.log("NewWave", from, timestamp, message);
-
-        setAllWaves((prevState) => [
-          {
-            address: from,
-            timestamp: new Date(timestamp * 1000),
-            message: message,
-          },
-          ...prevState,
-        ]);
-      });
     } catch (error) {
       console.error(error);
     }
@@ -64,43 +50,43 @@ function Wave() {
   useEffect(() => {
     getAllWavesData();
 
-    // //!! ----------------for events--------------
-    // let wavePortalContract;
+    //!! ----------------for events--------------
+    let wavePortalContract;
 
-    // const onNewWave = (from, timestamp, message) => {
-    //   console.log("NewWave", from, timestamp, message);
-    //   setAllWaves((prevState) => [
-    //     {
-    //       address: from,
-    //       timestamp: new Date(timestamp * 1000),
-    //       message: message,
-    //     },
-    //     ...prevState,
-    //   ]);
-    // };
+    const onNewWave = (from, timestamp, message) => {
+      console.log("NewWave", from, timestamp, message);
+      setAllWaves((prevState) => [
+        {
+          address: from,
+          timestamp: new Date(timestamp * 1000),
+          message: message,
+        },
+        ...prevState,
+      ]);
+    };
 
-    // //let listen to the event published by contract on each transaction
-    // if (window.ethereum) {
-    //   const provider = new ethers.providers.Web3Provider(window.ethereum);
+    //let listen to the event published by contract on each transaction
+    if (window.ethereum) {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
 
-    //   const signer = provider.getSigner();
-    //   const contractAddress = "0x8145D6a7384a0108dfB7dAB61e1229fE848a8754";
-    //   const contractABI = abi.abi;
+      const signer = provider.getSigner();
+      const contractAddress = "0x8145D6a7384a0108dfB7dAB61e1229fE848a8754";
+      const contractABI = abi.abi;
 
-    //   wavePortalContract = new ethers.Contract(
-    //     contractAddress,
-    //     contractABI,
-    //     signer
-    //   );
-    //   wavePortalContract.on("NewWave", onNewWave); // take params --> eventName, method
-    // }
+      wavePortalContract = new ethers.Contract(
+        contractAddress,
+        contractABI,
+        signer
+      );
+      wavePortalContract.on("NewWave", onNewWave); // take params --> eventName, method
+    }
 
-    // //clean up callback after render
-    // return () => {
-    //   if (wavePortalContract) {
-    //     wavePortalContract.off("NewWave", onNewWave);
-    //   }
-    // };
+    //clean up callback after render
+    return () => {
+      if (wavePortalContract) {
+        wavePortalContract.off("NewWave", onNewWave);
+      }
+    };
   }, []);
 
   return (
